@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <PreferenceCategory android:title="@string/theme_category_label">
+    <ListPreference
+      android:defaultValue="Cream"
+      android:entries="@array/theme_array"
+      android:entryValues="@array/theme_values"
+      android:key="theme"
+      android:summary="@string/theme_summary_label"
+      android:title="@string/theme_title_label" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/sakura_category_label">
+    <ListPreference
+      android:defaultValue="Cream"
+      android:entries="@array/color_array"
+      android:entryValues="@array/color_values"
+      android:key="color"
+      android:summary="@string/color_summary_label"
+      android:title="@string/color_title_label" />
+    <ListPreference
+      android:defaultValue="1"
+      android:entries="@array/type_array"
+      android:entryValues="@array/type_values"
+      android:key="type"
+      android:summary="@string/type_summary_label"
+      android:title="@string/type_title_label" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/leaf_category_label">
+    <ListPreference
+      android:defaultValue="Cream"
+      android:entries="@array/color_array"
+      android:entryValues="@array/color_values"
+      android:key="petal_color"
+      android:summary="@string/petal_summary_label"
+      android:title="@string/petal_title_label" />
+    <CheckBoxPreference
+      android:defaultValue="false"
+      android:key="lock_petal_color"
+      android:summary="@string/lock_petal_color_summary_label"
+      android:title="@string/lock_petal_color_title_label" />
+    <ListPreference
+      android:defaultValue="18"
+      android:entries="@array/total_array"
+      android:entryValues="@array/total_values"
+      android:key="total"
+      android:summary="@string/total_summary_label"
+      android:title="@string/total_title_label" />
+    <ListPreference
+      android:defaultValue="Random"
+      android:entries="@array/leaf_type_array"
+      android:entryValues="@array/leaf_type_values"
+      android:key="leaf_type"
+      android:summary="@string/leaf_type_summary_label"
+      android:title="@string/leaf_type_title_label" />
+    <ListPreference
+      android:defaultValue="1"
+      android:entries="@array/falling_mode_array"
+      android:entryValues="@array/falling_mode_values"
+      android:key="falling_mode"
+      android:summary="@string/falling_mode_summary_label"
+      android:title="@string/falling_mode_title_label" />
+    <ListPreference
+      android:defaultValue="1"
+      android:entries="@array/speed_array"
+      android:entryValues="@array/speed_values"
+      android:key="speed"
+      android:summary="@string/speed_summary_label"
+      android:title="@string/speed_title_label" />
+    <ListPreference
+      android:defaultValue="0.01"
+      android:entries="@array/acceleration_array"
+      android:entryValues="@array/acceleration_values"
+      android:key="acceleration"
+      android:summary="@string/acceleration_summary_label"
+      android:title="@string/acceleration_title_label" />
+    <CheckBoxPreference
+      android:defaultValue="true"
+      android:key="accelerate"
+      android:summary="@string/accelerate_summary_label"
+      android:title="@string/accelerate_title_label" />
+    <CheckBoxPreference
+      android:defaultValue="false"
+      android:key="smooth"
+      android:summary="@string/smooth_summary_label"
+      android:title="@string/smooth_title_label" />
+    <CheckBoxPreference
+      android:defaultValue="true"
+      android:key="seed"
+      android:summary="@string/seed_summary_label"
+      android:title="@string/seed_title_label" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/moon_category_label">
+    <CheckBoxPreference
+      android:defaultValue="true"
+      android:key="moon"
+      android:summary="@string/moon_summary_label"
+      android:title="@string/moon_title_label" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/mountain_category_label">
+    <CheckBoxPreference
+      android:defaultValue="false"
+      android:key="mountain"
+      android:summary="@string/mountain_summary_label"
+      android:title="@string/mountain_title_label" />
+    <ListPreference
+      android:defaultValue="350"
+      android:entries="@array/mountain_pos_array"
+      android:entryValues="@array/mountain_pos_values"
+      android:key="mountain_pos"
+      android:summary="@string/mountain_pos_summary_label"
+      android:title="@string/mountain_pos_title_label" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/parallax_category_label">
+    <CheckBoxPreference
+      android:defaultValue="true"
+      android:key="parallax"
+      android:summary="@string/parallax_summary_label"
+      android:title="@string/parallax_title_label" />
+    <ListPreference
+      android:defaultValue="0"
+      android:entries="@array/parallax_pos_array"
+      android:entryValues="@array/parallax_pos_values"
+      android:key="parallax_pos"
+      android:summary="@string/parallax_pos_summary_label"
+      android:title="@string/parallax_pos_title_label" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/performance_category_label">
+    <ListPreference
+      android:defaultValue="60"
+      android:entries="@array/fps_array"
+      android:entryValues="@array/fps_values"
+      android:key="fps"
+      android:summary="@string/fps_summary_label"
+      android:title="@string/fps_title_label" />
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="@string/more_category_label">
+    <PreferenceScreen
+      android:key="share_app"
+      android:title="@string/share_app_title_label" />
+    <PreferenceScreen android:title="@string/twitter_title_label">
+      <intent
+        android:action="android.intent.action.VIEW"
+        android:data="http://twitter.com/xllusion" />
+    </PreferenceScreen>
+  </PreferenceCategory>
+
+</PreferenceScreen>
