@@ -7,53 +7,37 @@ import android.graphics.PointF;
 
 /* renamed from: com.xllusion.game.engine.sprite.a */
 public class C0000a {
-  /* renamed from: a */
   private PointF f0a = new PointF();
-  /* renamed from: b */
   private PointF f1b = new PointF();
-  /* renamed from: c */
   private float f2c = 0.0f;
-  /* renamed from: d */
   private Bitmap mBitmap = null;
-  /* renamed from: e */
   protected int mBitmapWidth = 0;
-  /* renamed from: f */
   protected int mBitmapHeight = 0;
-  /* renamed from: g */
   protected PointF f6g = new PointF();
-  /* renamed from: h */
   protected float mRotateDegrees = 0.0f;
-  /* renamed from: i */
   protected boolean f8i = false;
-  /* renamed from: j */
   protected boolean f9j = false;
-  /* renamed from: k */
   protected boolean f10k = true;
-  /* renamed from: l */
   protected float f11l = 1.0f;
-  /* renamed from: m */
   protected PointF mCurrentPos = new PointF();
-  /* renamed from: n */
   protected PointF f13n = new PointF();
-  /* renamed from: o */
   protected PointF f14o = new PointF();
-  /* renamed from: p */
   protected Paint mPaint = null;
 
   public C0000a(float f, float f2, Bitmap bitmap) {
-    mo3a(bitmap);
+    setBitmap(bitmap);
     this.f1b.x = 0.0f;
     this.f1b.y = 0.0f;
   }
 
   /* renamed from: a */
-  public void mo3a(Bitmap bitmap) {
+  public void setBitmap(Bitmap bitmap) {
     if (this.mBitmap != null) {
       this.mBitmap.recycle();
     }
-    this.mBitmap = Bitmap.createScaledBitmap(bitmap, (int) (((float) bitmap.getWidth()) * this.f11l), (int) (((float) bitmap.getHeight()) * this.f11l), true);
-    this.mBitmapWidth = this.mBitmap.getWidth();
-    this.mBitmapHeight = this.mBitmap.getHeight();
+    mBitmap = Bitmap.createScaledBitmap(bitmap, (int) (((float) bitmap.getWidth()) * this.f11l), (int) (((float) bitmap.getHeight()) * this.f11l), true);
+    mBitmapWidth = mBitmap.getWidth();
+    mBitmapHeight = mBitmap.getHeight();
   }
 
   /* renamed from: a */

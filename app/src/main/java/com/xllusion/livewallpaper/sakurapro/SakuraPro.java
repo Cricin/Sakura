@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -21,6 +22,7 @@ import android.view.WindowManager;
 import java.util.Random;
 
 import static android.graphics.Bitmap.createScaledBitmap;
+import static android.graphics.BitmapFactory.decodeResource;
 
 public class SakuraPro extends WallpaperService {
 
@@ -35,14 +37,14 @@ public class SakuraPro extends WallpaperService {
     private boolean mShowMountain = false;
     private int mMountainGravity = 0;
     private boolean mParallax = true;
-    private float mParallaxPos = 0.0f;
+    private float mParallaxPos = 0f;
     private DrawThread mDrawThread;
     private boolean mVisible = false;
     private SharedPreferences mPreference;
     private SensorManager mSensorManager;
-    private float mSpeed = 1.0f;
+    private float mSpeed = 1f;
     private boolean mSmoothEnabled = false;
-    private boolean mSeedEnabled = true;
+    private boolean mShowSeed = true;
     private boolean mShowMoon = true;
     private String mLeafType = "Random";
     private boolean mAccelerateEnabled = true;
@@ -55,7 +57,7 @@ public class SakuraPro extends WallpaperService {
     private int mSurfaceHeight;
     private int mOrientation = 0;
     private PointF f53s = new PointF();
-    private float mAcceletation = 0.01f;
+    private float mAcceleration = 0.01f;
     private SakuraItem[] mSakuraItems;
     private int mTotalFlowerCount = 12;
     private SeedItem[] mSeedItems;
@@ -89,8 +91,8 @@ public class SakuraPro extends WallpaperService {
       }
       mTotalFlowerCount = Integer.parseInt(prefs.getString("total", "18"));
       mSpeed = Float.parseFloat(prefs.getString("speed", "1.0"));
-      mAcceletation = Float.parseFloat(prefs.getString("acceleration", "0.01"));
-      mSeedEnabled = prefs.getBoolean("seed", true);
+      mAcceleration = Float.parseFloat(prefs.getString("acceleration", "0.01"));
+      mShowSeed = prefs.getBoolean("seed", true);
       mShowMoon = prefs.getBoolean("moon", true);
       mLeafType = prefs.getString("leaf_type", "Random");
       mFallingMode = Integer.parseInt(prefs.getString("falling_mode", "1"));
@@ -113,22 +115,22 @@ public class SakuraPro extends WallpaperService {
       BitmapFactory.Options options = new BitmapFactory.Options();
       options.inDither = true;
       options.inScaled = false;
-      options.inPreferredConfig = Bitmap.Config.RGB_565;
+      options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
-      mBitmap = Bitmap.createBitmap(mSurfaceWidth, mSurfaceHeight, Bitmap.Config.RGB_565);
-      Bitmap background = BitmapFactory.decodeResource(res, SakuraTheme.mBackground, options);
-      background = Bitmap.createScaledBitmap(background, mSurfaceWidth, mSurfaceHeight, false);
+      mBitmap = Bitmap.createBitmap(mSurfaceWidth, mSurfaceHeight, Bitmap.Config.ARGB_8888);
+      Bitmap background = decodeResource(res, SakuraTheme.mBackground, options);
 
-      Bitmap star = BitmapFactory.decodeResource(res, SakuraTheme.mStars, options);
-      Bitmap branchLeft = BitmapFactory.decodeResource(res, SakuraTheme.mBranchLeft, options);
-      Bitmap branchRight = BitmapFactory.decodeResource(res, SakuraTheme.mBranchRight, options);
-      Bitmap sakuraLeft = BitmapFactory.decodeResource(res, SakuraTheme.mSakuraLeft, options);
-      Bitmap sakuraRight = BitmapFactory.decodeResource(res, SakuraTheme.mSakuraRight, options);
+      Bitmap star = decodeResource(res, SakuraTheme.mStars, options);
+      Bitmap branchLeft = decodeResource(res, SakuraTheme.mBranchLeft, options);
+      Bitmap branchRight = decodeResource(res, SakuraTheme.mBranchRight, options);
+      Bitmap sakuraLeft = decodeResource(res, SakuraTheme.mSakuraLeft, options);
+      Bitmap sakuraRight = decodeResource(res, SakuraTheme.mSakuraRight, options);
 
       Canvas canvas = new Canvas(mBitmap);
       canvas.setDensity(Bitmap.DENSITY_NONE);
 
-      canvas.drawBitmap(background, 0, 0, null);
+      drawBitmapCenterCropped(background, canvas);
+//      canvas.drawBitmap(background, 0, 0, null);
       canvas.drawBitmap(star, 0, 0, null);
       canvas.drawBitmap(branchLeft, 0, 100, null);
       canvas.drawBitmap(sakuraLeft, 0, 100, null);
@@ -136,7 +138,7 @@ public class SakuraPro extends WallpaperService {
       canvas.drawBitmap(sakuraRight, mSurfaceWidth - sakuraRight.getWidth(), 0, null);
 
       if (mShowMountain) {
-        Bitmap mountain = BitmapFactory.decodeResource(res, R.drawable.mountain, options);
+        Bitmap mountain = decodeResource(res, R.drawable.mountain, options);
         int mountainWidth = mountain.getWidth();
         int mountainLeft = 0;
         if (mMountainGravity == 0) {
@@ -147,19 +149,44 @@ public class SakuraPro extends WallpaperService {
         canvas.drawBitmap(mountain, mountainLeft, mSurfaceHeight - 210, null);
       }
 
-      initSakuraItems();
+      initSakuras();
       onSizeChanged();
-      if (mSeedEnabled) {
-        initBgPaintAndSeedItem();
-        initSeeds();
+      if (mShowSeed) {
+        initBgPaintAndSeeds();
       }
       if (mShowMoon) {
         options.inDither = true;
         options.inScaled = false;
         options.inPreferredConfig = Bitmap.Config.RGB_565;
-        mMoonBitmap = BitmapFactory.decodeResource(res, R.drawable.moon, options);
+        mMoonBitmap = decodeResource(res, R.drawable.moon, options);
+        canvas.drawBitmap(mMoonBitmap, mSurfaceWidth * 0.4F, 70, null);
       }
     }
+
+    private void drawBitmapCenterCropped(Bitmap bitmap, Canvas canvas) {
+      Matrix matrix = new Matrix();
+      float scale;
+      float dx = 0, dy = 0;
+
+      final int dwidth = bitmap.getWidth();
+      final int dheight = bitmap.getHeight();
+
+      final int vwidth = canvas.getWidth();
+      final int vheight = canvas.getHeight();
+      if (dwidth * vheight > vwidth * dheight) {
+        scale = (float) vheight / (float) dheight;
+        dx = (vwidth - dwidth * scale) * 0.5f;
+      } else {
+        scale = (float) vwidth / (float) dwidth;
+        dy = (vheight - dheight * scale) * 0.5f;
+      }
+      matrix.setScale(scale, scale);
+      matrix.postTranslate(Math.round(dx), Math.round(dy));
+      canvas.setMatrix(matrix);
+      canvas.drawBitmap(bitmap, 0, 0, null);
+      canvas.setMatrix(null);
+    }
+
 
     public final void onCreate(SurfaceHolder surfaceHolder) {
       super.onCreate(surfaceHolder);
@@ -231,8 +258,8 @@ public class SakuraPro extends WallpaperService {
     public final void onOffsetsChanged(float xOffset, float yOffset,
                                        float xOffsetStep, float yOffsetStep,
                                        int xPixelOffset, int yPixelOffset) {
-      if (mParallax) {
-        if (mSeedEnabled) {
+      if (/*mParallax*/ false) {
+        if (mShowSeed) {
           float f5 = xOffset >= this.f27A ? xOffset * 10.0f : (-xOffset) * 10.0f;
           for (SeedItem seedItem : this.mSeedItems) {
             PointF pointF = seedItem.mSeedPos;
@@ -289,16 +316,16 @@ public class SakuraPro extends WallpaperService {
       mBackgroundBitmapRect.top = 0;
       mBackgroundBitmapRect.right = this.mSurfaceWidth + i;
       mBackgroundBitmapRect.bottom = this.mSurfaceHeight;
-      mMoonPointF.x = (340.0f - ((float) i)) + (60.0f * f);
+//      mMoonPointF.x = (340.0f - ((float) i)) + (60.0f * f);
     }
 
     final void onDraw(Canvas canvas) {
       if (this.mBitmap != null) {
         canvas.drawBitmap(mBitmap, 0, 0, null);
       }
-      if (mShowMoon && this.mMoonBitmap != null) {
-        canvas.drawBitmap(mMoonBitmap, mMoonPointF.x, 70.0f, null);
-      }
+//      if (mShowMoon && this.mMoonBitmap != null) {
+//        canvas.drawBitmap(mMoonBitmap, mMoonPointF.x, 70.0f, null);
+//      }
       if (mSakuraItems != null) {
         for (SakuraItem sakuraItem : this.mSakuraItems) {
           sakuraItem.f73a.x = this.f53s.x;
@@ -307,27 +334,27 @@ public class SakuraPro extends WallpaperService {
           sakuraItem.onDraw(canvas);
         }
       }
-      if (mSeedEnabled && mSeedItems != null) {
-        for (SeedItem seedItem : this.mSeedItems) {
+      if (mShowSeed && mSeedItems != null) {
+        for (SeedItem seedItem : mSeedItems) {
           PointF pointF = seedItem.mSeedPos;
           pointF.x += seedItem.mNextPosDistance.x;
           pointF = seedItem.mSeedPos;
           pointF.y += seedItem.mNextPosDistance.y;
-          if (seedItem.mSeedPos.x - 20.0f > ((float) this.mSurfaceWidth)) {
+          if (seedItem.mSeedPos.x - 20.0f > ((float) mSurfaceWidth)) {
             seedItem.mSeedPos.x = -20.0f;
             seedItem.mNextPosDistance.x = (float) ((Math.random() * 4.0d) + 1.0d);
           } else if (seedItem.mSeedPos.x + 20.0f < 0.0f) {
-            seedItem.mSeedPos.x = (float) (this.mSurfaceWidth + 20);
+            seedItem.mSeedPos.x = mSurfaceWidth + 20;
             seedItem.mNextPosDistance.x = (float) (-((Math.random() * 4.0d) + 1.0d));
           }
-          if (seedItem.mSeedPos.y - 20.0f > ((float) this.mSurfaceHeight)) {
+          if (seedItem.mSeedPos.y - 20.0f > mSurfaceHeight) {
             seedItem.mSeedPos.y = -20.0f;
             seedItem.mNextPosDistance.y = (float) ((Math.random() * 2.0d) + 1.0d);
           } else if (seedItem.mSeedPos.y + 20.0f < 0.0f) {
-            seedItem.mSeedPos.y = (float) (this.mSurfaceHeight + 20);
+            seedItem.mSeedPos.y = mSurfaceHeight + 20;
             seedItem.mNextPosDistance.y = (float) ((Math.random() * 2.0d) + 1.0d);
           }
-          canvas.drawCircle(seedItem.mSeedPos.x, seedItem.mSeedPos.y, 2.0f, mSeedPaint);
+          canvas.drawCircle(seedItem.mSeedPos.x, seedItem.mSeedPos.y, 2, mSeedPaint);
         }
       }
     }
@@ -349,15 +376,15 @@ public class SakuraPro extends WallpaperService {
       }
     }
 
-    private void initSakuraItems() {
+    private void initSakuras() {
       this.mSakuraItems = new SakuraItem[mTotalFlowerCount];
       BitmapFactory.Options options = new BitmapFactory.Options();
       options.inDither = true;
       options.inScaled = false;
       options.inPreferredConfig = Bitmap.Config.RGB_565;
-      Bitmap flower = BitmapFactory.decodeResource(getResources(), SakuraTheme.mSakuraFlower, options);
-      Bitmap petal1 = BitmapFactory.decodeResource(getResources(), SakuraTheme.mSakuraPetal1, options);
-      Bitmap petal2 = BitmapFactory.decodeResource(getResources(), SakuraTheme.mSakuraPatal2, options);
+      Bitmap flower = decodeResource(getResources(), SakuraTheme.mSakuraFlower, options);
+      Bitmap petal1 = decodeResource(getResources(), SakuraTheme.mSakuraPetal1, options);
+      Bitmap petal2 = decodeResource(getResources(), SakuraTheme.mSakuraPatal2, options);
       for (int i = 0; i < mTotalFlowerCount; i++) {
         Bitmap bitmap = null;
         int i2 = 0;
@@ -421,7 +448,7 @@ public class SakuraPro extends WallpaperService {
         sakuraItem.mo12h();
         sakuraItem.mo13a((int) (((Math.random() * 40.0d) + 40.0d) / ((double) this.mSpeed)));
         sakuraItem.mo17e();
-        sakuraItem.f74b = this.mAcceletation;
+        sakuraItem.f74b = this.mAcceleration;
         sakuraItem.mSpeed = this.mSpeed;
         sakuraItem.mFallingMode = this.mFallingMode;
         this.mSakuraItems[i] = sakuraItem;
@@ -434,7 +461,7 @@ public class SakuraPro extends WallpaperService {
       }
     }
 
-    private void initBgPaintAndSeedItem() {
+    private void initBgPaintAndSeeds() {
       this.mSeedPaint.setColor(0xaaffffff);
       this.mSeedPaint.setStyle(Paint.Style.FILL);
       this.mSeedItems = new SeedItem[this.mSeedCount];
@@ -444,9 +471,6 @@ public class SakuraPro extends WallpaperService {
         seedItem.mNextPosDistance = new PointF(0.0f, 0.0f);
         this.mSeedItems[i] = seedItem;
       }
-    }
-
-    private void initSeeds() {
       for (SeedItem seedItem : mSeedItems) {
         long round = Math.round(Math.random());
         if (round == 0) {
@@ -461,6 +485,7 @@ public class SakuraPro extends WallpaperService {
           seedItem.mSeedPos.y = ((float) ((Math.random() * ((double) this.mSurfaceHeight)) / 2.0d)) - 20.0f;
         }
       }
+
     }
   }
 

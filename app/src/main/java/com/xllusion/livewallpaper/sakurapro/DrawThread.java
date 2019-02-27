@@ -12,8 +12,8 @@ public final class DrawThread extends Thread {
   private SakuraPro.SakuraEngine mEngine;
 
   DrawThread(SakuraPro.SakuraEngine engine,
-                    SurfaceHolder surfaceHolder,
-                    int fps) {
+             SurfaceHolder surfaceHolder,
+             int fps) {
     this.mEngine = engine;
     this.mHolder = surfaceHolder;
     this.mLastDrawTime = System.currentTimeMillis();
@@ -31,15 +31,15 @@ public final class DrawThread extends Thread {
           Thread.sleep(((long) mDrawInterval) - timeElapsedSinceLastDraw);
         }
         this.mLastDrawTime = System.currentTimeMillis();
-        canvas = mHolder.lockCanvas(null);
+        canvas = mHolder.lockCanvas();
         synchronized (mHolder) {
           mEngine.onDraw(canvas);
-        }
-      } catch (Throwable ignored) {
-      } finally {
-        if (canvas != null) {
           mHolder.unlockCanvasAndPost(canvas);
         }
+      } catch (InterruptedException e) {
+        break;
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }
   }

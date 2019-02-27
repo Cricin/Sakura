@@ -29,7 +29,7 @@ public class SpriteBlit extends C0000a {
   private long f26w = 0;
 
   public SpriteBlit(Bitmap bitmap, int i, int i2, int i3) {
-    super(0.0f, 0.0f, bitmap);
+    super(0, 0, bitmap);
     this.f17b = i;
     this.mBitmapWidth = (int) (((float) i2) * this.f11l);
     this.mBitmapHeight = (int) (((float) i3) * this.f11l);
@@ -41,10 +41,6 @@ public class SpriteBlit extends C0000a {
       point.y = (int) (Math.floor((double) (i4 / width)) * ((double) i3));
       this.f16a[i4] = Bitmap.createScaledBitmap(Bitmap.createBitmap(bitmap, point.x, point.y, i2, i3, null, true), this.mBitmapWidth, this.mBitmapHeight, true);
     }
-  }
-
-  /* renamed from: a */
-  public final void mo3a(Bitmap bitmap) {
   }
 
   /* renamed from: a */
